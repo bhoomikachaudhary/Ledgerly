@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Env
+.env
+*.db
+
+# Uploaded receipts (local dev storage)
+backend/uploads/
+
+# Node / frontend
+node_modules/
+dist/
+.vite/
+
+# Editors
+.vscode/
+.idea/
+.DS_Store
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/ 

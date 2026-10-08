@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply bg-paper text-ink;
+  }
+
+  body {
+    @apply font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+  }
+
+  /* Tabular numerals for every amount in the app — the whole point of a mono digit face */
+  .amount {
+    @apply font-mono tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme("colors.forest");
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center bg-ink text-paper px-4 py-2 text-sm font-medium
+      hover:bg-ink/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center border border-rule text-ink px-4 py-2 text-sm
+      font-medium hover:border-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .field-label {
+    @apply block text-xs uppercase tracking-wide text-ink-soft mb-1.5;
+  }
+
+  .field-input {
+    @apply w-full border border-rule bg-paper px-3 py-2 text-sm text-ink placeholder:text-ink-soft/60
+      focus:border-ink focus:outline-none transition-colors;
+  }
+
+  .field-error {
+    @apply text-xs text-brick mt-1;
+  }
+}

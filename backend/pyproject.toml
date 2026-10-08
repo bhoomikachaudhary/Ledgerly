@@ -1,0 +1,19 @@
+[tool.ruff]
+line-length = 100
+# Pinned to the actual local dev interpreter (3.9), NOT the prod target (3.12).
+# This stops `ruff --fix` from "modernizing" to syntax (X | None, datetime.UTC,
+# collections.abc.Sequence-only) that doesn't exist until 3.10/3.11. If/when local
+# dev moves to 3.12, bump this back to match — don't just delete it.
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["B008", "UP035"]  # UP035: typing.Sequence still fine on 3.9, no need to churn imports
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
