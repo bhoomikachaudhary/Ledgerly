@@ -3,6 +3,18 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "@/hooks/useAuth";
 
+function describeLoginError(err: unknown): string {
+  const axiosErr = err as { response?: { status?: number } };
+
+  if (!axiosErr.response) {
+    return "Couldn't reach the server. Check your connection, or the server may be unreachable right now.";
+  }
+  if (axiosErr.response.status === 401) {
+    return "That email or password doesn't match an account.";
+  }
+  return "Something went wrong signing in. Please try again.";
+}
+
 export function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -18,8 +30,8 @@ export function Login() {
     try {
       await login(email, password);
       navigate("/");
-    } catch {
-      setError("That email or password doesn't match an account.");
+    } catch (err) {
+      setError(describeLoginError(err));
     } finally {
       setIsSubmitting(false);
     }

@@ -3,6 +3,31 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "@/hooks/useAuth";
 
+function describeSignupError(err: unknown): string {
+  const axiosErr = err as { response?: { status?: number; data?: { detail?: unknown } }; request?: unknown };
+
+  // No `response` at all means the request never completed — network failure, CORS
+  // block, DNS issue, backend down, etc. This is NOT a validation problem, so don't
+  // claim it is.
+  if (!axiosErr.response) {
+    return "Couldn't reach the server. Check your connection, or the server may be unreachable right now.";
+  }
+
+  const status = axiosErr.response.status;
+  if (status === 409) {
+    return "An account with this email already exists.";
+  }
+  if (status === 422) {
+    const detail = axiosErr.response.data?.detail;
+    if (Array.isArray(detail) && detail[0]?.msg) {
+      return String(detail[0].msg);
+    }
+    return "Some of those details aren't valid — check the form and try again.";
+  }
+
+  return "Something went wrong creating your account. Please try again.";
+}
+
 export function Signup() {
   const { signup } = useAuth();
   const navigate = useNavigate();
@@ -20,12 +45,7 @@ export function Signup() {
       await signup(email, password, name);
       navigate("/");
     } catch (err) {
-      const status = (err as { response?: { status?: number } }).response?.status;
-      setError(
-        status === 409
-          ? "An account with this email already exists."
-          : "Couldn't create your account — password needs at least 8 characters."
-      );
+      setError(describeSignupError(err));
     } finally {
       setIsSubmitting(false);
     }
