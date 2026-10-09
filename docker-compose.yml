@@ -1,39 +1,22 @@
-services:
-  db:
-    image: postgres:16-alpine
-    container_name: ledgerly-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ledgerly
-      POSTGRES_PASSWORD: ledgerly
-      POSTGRES_DB: ledgerly
-    ports:
-      - "5432:5432"
-    volumes:
-      - ledgerly_pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ledgerly"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+FROM python:3.12-slim
 
-  api:
-    build:
-      context: ./backend
-    container_name: ledgerly-api
-    restart: unless-stopped
-    env_file:
-      - ./backend/.env
-    environment:
-      DATABASE_URL: postgresql+psycopg://ledgerly:ledgerly@db:5432/ledgerly
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./backend:/app
-    depends_on:
-      db:
-        condition: service_healthy
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+WORKDIR /app
 
-volumes:
-  ledgerly_pgdata:
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8000
+
+# Run pending migrations, THEN start the server. This runs on every container
+# start/deploy, which is safe — alembic upgrade head is a no-op if already current.
+CMD alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000
